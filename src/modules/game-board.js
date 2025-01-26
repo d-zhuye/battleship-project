@@ -27,6 +27,16 @@ class GameBoard {
     this.board[row][col].hit = "miss";
   }
 
+  placeShip(ship, row, col) {
+    ship.setCoords(row, col);
+    ship.rowPos.forEach(row => {
+      ship.colPos.forEach(col => {
+        this.board[row][col].value = 1;
+        this.board[row][col].shipId = ship.shipId;
+      })
+    })
+  }
+
 }
 
 export { GameBoard };

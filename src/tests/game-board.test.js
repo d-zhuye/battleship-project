@@ -58,3 +58,23 @@ describe("create a 10x10 game board", () => {
     })
   })
 })
+
+describe("GameBoard object to properly manage ships", () => {
+  describe("GameBoard to set coordinates of ships and update graph accordingly", () => {
+    const testBoard2 = new GameBoard();
+    test("GameBoard to set coordinates of ships", () => {
+      testBoard2.placeShip(testBoard2.submarine, 3, 7);
+      expect(testBoard2.submarine.rowPos).toEqual([3]);
+      expect(testBoard2.submarine.colPos).toEqual([7, 8, 9]);
+    })
+    test("placeShip method to throw error if ship is out of bound", () => {
+      expect(() => testBoard2.placeShip(testBoard2.battleship, 8, 8)).toThrow("Ship out of bounds. Please reposition.");
+    })
+    test("Setting ship coordinates should change corresponding cell values to 1  and shipId", () => {
+      const expected = { value: 1, shipId: "submarine", hit: false}
+      expect(testBoard2.board[3][7]).toEqual(expected);
+      expect(testBoard2.board[3][8]).toEqual(expected);
+      expect(testBoard2.board[3][9]).toEqual(expected);
+    })
+  })
+})
