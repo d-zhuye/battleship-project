@@ -43,12 +43,12 @@ class Ship {
 
   checkBounds(row, col) {
     const verticalBound = this.length + row - 1;
-    if (row < 0 || verticalBound > 10) { 
+    if (row < 0 || verticalBound > 9) { 
       throw new Error("Ship out of bounds. Please reposition.")
     }
 
     const horizontalBound = this.length + col - 1;
-    if (col < 0 || horizontalBound > 10) {
+    if (col < 0 || horizontalBound > 9) {
       throw new Error("Ship out of bounds. Please reposition.")
     }
   }
