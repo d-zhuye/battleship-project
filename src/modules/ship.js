@@ -1,6 +1,10 @@
 class Ship {
-  constructor(length) {
+  constructor(shipId, length) {
+    this.shipId = shipId;
     this.length = length;
+    this.orientation = "horizontal";
+    this.rowPos;
+    this.colPos;
     this.hitCount = 0;
     this.sunken = false;
   }
@@ -14,6 +18,43 @@ class Ship {
     if (this.hitCount === this.length) {
       this.sunken = true;
     }
+  }
+  
+  setCoords(row, col) {
+    this.rowPos = [];
+    this.colPos = [];
+
+    this.checkBounds(row, col);
+
+    if (this.orientation === "horizontal") {
+      for(let i = 0; i < this.length; i++) {
+        this.colPos.push(col + i);
+      }
+      this.rowPos.push(row);
+    } 
+
+    if (this.orientation === "vertical") {
+      for (let i = 0; i < this.length; i++) {
+        this.rowPos.push(row + i);
+      }
+      this.colPos.push(col);
+    }
+  }
+
+  checkBounds(row, col) {
+    const verticalBound = this.length + row - 1;
+    if (row < 0 || verticalBound > 10) { 
+      throw new Error("Ship out of bounds. Please reposition.")
+    }
+
+    const horizontalBound = this.length + col - 1;
+    if (col < 0 || horizontalBound > 10) {
+      throw new Error("Ship out of bounds. Please reposition.")
+    }
+  }
+
+  setOrientation(orientation) {
+    this.orientation = orientation;
   }
 }
 export { Ship };
