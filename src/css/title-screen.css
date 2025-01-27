@@ -1,0 +1,22 @@
+#title-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+#title {
+  font-size: 5rem;
+}
+
+#intakeForm {
+  display: flex;
+  flex-direction: column;
+}
+
+label, input {
+  display: block;
+  font-size: 1.25rem;
+  width: 100%;
+}
