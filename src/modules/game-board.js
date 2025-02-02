@@ -3,11 +3,7 @@ import { Ship } from "./ship";
 class GameBoard {
   constructor() {
     this.board = this.createBoard();
-    this.carrier = new Ship("carrier", 5)
-    this.battleship = new Ship("battleship", 4);
-    this.cruiser = new Ship("cruiser", 3);
-    this.submarine = new Ship("submarine", 3);
-    this.destroyer = new Ship("destroyer", 2);
+    this.fleet = [];
   }
 
   createBoard() {
@@ -41,6 +37,8 @@ class GameBoard {
         this.board[a][b].ship = ship;
       })
     })
+
+    this.fleet.push(ship);
   }
 
 }
