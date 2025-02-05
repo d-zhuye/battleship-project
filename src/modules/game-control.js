@@ -1,10 +1,14 @@
 import { Ship } from "./ship";
 import { Player } from "./player";
 
-const game = newGame();
-game.placeShips();
-game.placeRandom(game.computer);
-game.renderMaps();
+initializeGamePlay();
+
+function initializeGamePlay() {
+  const game = newGame();
+  game.placeShips();
+  game.placeRandom(game.computer);
+  game.renderMaps();
+}
 
 function newGame() {
   // Create players
@@ -13,13 +17,9 @@ function newGame() {
 
   // Reset Document Body
   document.body.innerHTML = " ";
-  const placementScreen = document.createElement("div");
-  placementScreen.id = "placement-screen";
-  document.body.appendChild(placementScreen);
-
-  // Tracker
-  const tracker = document.createElement("div");
-  
+  const gamePlay = document.createElement("div");
+  gamePlay.id = "placement-screen";
+  document.body.appendChild(gamePlay);
 
   const ships = [
     { name: "Carrier", length: 5 },
@@ -30,8 +30,6 @@ function newGame() {
   ];
 
   const placeShips = () => {
-    // Array of all potential battleships
-
     let shipIndex = 0;
 
     // Command Board
@@ -39,7 +37,7 @@ function newGame() {
     commandBoard.id = "command-board";
     commandBoard.innerHTML = `<div> Next Ship: </div>
       <div id=next-ship-indicator></div>`;
-    placementScreen.append(commandBoard);
+      gamePlay.append(commandBoard);
 
     const nextShip = document.getElementById("next-ship-indicator");
     nextShip.textContent = ships[shipIndex].name;
@@ -47,7 +45,7 @@ function newGame() {
     // Placement Map
     const placementMap = document.createElement("div");
     placementMap.classList.add("map");
-    placementScreen.appendChild(placementMap);
+    gamePlay.appendChild(placementMap);
 
     player.gameBoard.board.forEach((row) => {
       row.forEach((col) => {
@@ -65,11 +63,20 @@ function newGame() {
               ships[shipIndex].name,
               ships[shipIndex].length
             );
-            player.gameBoard.placeShip(newShip, rowIndex, colIndex);
-            shipIndex++;
-            if (ships[shipIndex]) nextShip.textContent = ships[shipIndex].name;
 
-            tracker.textContent = JSON.stringify(player);
+            const validity = isValidPlacement(
+              newShip,
+              player,
+              rowIndex,
+              colIndex
+            );
+
+            if (validity) {
+              player.gameBoard.placeShip(newShip, rowIndex, colIndex);
+              shipIndex++;
+            }
+            if (ships[shipIndex]) nextShip.textContent = ships[shipIndex].name;
+            if (shipIndex == ships.length) renderMaps();
           }
         });
       });
@@ -82,67 +89,75 @@ function newGame() {
       const newShip = new Ship(ships[i].name, ships[i].length);
       let isPlaced = false;
 
-      const constraint = 9 - newShip.length + 1; 
+      const constraint = 9 - newShip.length + 1;
 
       while (!isPlaced) {
         newShip.orientation = Math.random() < 0.5 ? "vertical" : "horizontal";
-        const rowCoord = Math.round(Math.random() * constraint);
-        const colCoord = Math.round(Math.random() * constraint);
-
-        // Check all cells based on orientation
-        const cells = [];
-        console.log(newShip.orientation);
-        for (let xy = 0; xy < newShip.length; xy++) {
-          if (newShip.orientation == "vertical") {
-            const cell = user.gameBoard.board[rowCoord + xy][colCoord];
-            cells.push(cell);
-          } else {
-            const cell = user.gameBoard.board[rowCoord][colCoord + xy];
-            cells.push(cell);
-          }
+        let rowCoord, colCoord;
+        if (newShip.orientation == "vertical") {
+          rowCoord = Math.round(Math.random() * constraint);
+          colCoord = Math.round(Math.random() * 9);
+        } else {
+          colCoord = Math.round(Math.random() * constraint);
+          rowCoord = Math.round(Math.random() * 9);
         }
 
-        // if (ship.orientation === "vertical") {
-        //   console.log(ship.orientation);
-        //   for (let y = 0; y < ship.length; y++) {
-        //     const cell = computer.gameBoard.board[rowCoord][colCoord + y];
-        //     cells.push(cell);
-        //   }
-        // } else {
-        //   for (let x = 0; x < ship.length; x++) {
-        //     const cell = computer.gameBoard.board[rowCoord + x][colCoord];
-        //     cells.push(cell);
-        //   }
-        // }
-
-        console.log("placing: " + newShip.shipId);
-        cells.forEach(cell => {
-          const stringify = JSON.stringify(cell);
-          console.log(">>>>>>>" + stringify);
-        })
-
-        console.log(cells);
-        console.log(newShip);
-        let validity = cells.every(cell => cell.value === 0);
-
-        console.log(validity);
-        console.log("_____________________________________");
+        let validity = isValidPlacement(newShip, user, rowCoord, colCoord, true);
 
         if (validity) {
           user.gameBoard.placeShip(newShip, rowCoord, colCoord);
           isPlaced = true;
-        } 
+        }
       }
     }
-    tracker.textContent = JSON.stringify(user);
-    placementScreen.appendChild(tracker);
+  };
+
+  const isValidPlacement = (ship, user, rowCoord, colCoord, isRandom) => {
+    const cells = [];
+    for (let xy = 0; xy < ship.length; xy++) {
+      if (ship.orientation == "vertical") {
+        const cell = user.gameBoard.board[rowCoord + xy][colCoord];
+        cells.push(cell);
+
+        if (isRandom) {
+          if (user.gameBoard.board[rowCoord + xy][colCoord + 1]) {
+            const marginRight = user.gameBoard.board[rowCoord + xy][colCoord + 1];
+            cells.push(marginRight);
+          }
+
+          if (user.gameBoard.board[rowCoord + xy][colCoord - 1]) {
+            const marginLeft = user.gameBoard.board[rowCoord + xy][colCoord - 1];
+            cells.push(marginLeft);
+          }
+        }
+      } else {
+        const cell = user.gameBoard.board[rowCoord][colCoord + xy];
+        cells.push(cell);
+
+        if (isRandom) {
+          if (user.gameBoard.board[rowCoord + 1]) {
+            const marginTop = user.gameBoard.board[rowCoord + 1][colCoord + xy];
+            cells.push(marginTop);
+          }
+
+          if (user.gameBoard.board[rowCoord - 1]) {
+            const marginBottom = user.gameBoard.board[rowCoord - 1][colCoord + xy];
+            cells.push(marginBottom);
+          }
+        }
+      }
+    }
+
+    let validity = cells.every((cell) => cell && cell.value === 0);
+    return validity;
   };
 
   const renderMaps = () => {
+    gamePlay.innerHTML = "";
     [player, computer].forEach((user) => {
       const map = document.createElement("div");
       map.classList.add("map");
-      placementScreen.appendChild(map);
+      gamePlay.appendChild(map);
 
       user.gameBoard.board.forEach((row) => {
         row.forEach((col) => {
@@ -159,7 +174,7 @@ function newGame() {
   return { player, computer, placeShips, placeRandom, renderMaps };
 }
 
-export { newGame };
+export { initializeGamePlay };
 /*
   1. Reset document body
   2. Create ship placement screen
