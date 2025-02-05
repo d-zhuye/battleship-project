@@ -1,0 +1,40 @@
+:root {
+  --cell-border: 1px solid black;
+}
+
+#placement-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+#command-board {
+  display: flex;
+  gap: 15px;
+}
+
+.map {
+  width: 80%;
+  display: grid;
+  grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+  text-align: center;
+}
+
+.cell {
+  border-right: var(--cell-border);
+  border-top: var(--cell-border);
+}
+
+.cell:nth-child(10n + 1) {
+  border-left: var(--cell-border);
+}
+
+.cell:nth-last-child(-n + 10) {
+  border-bottom: var(--cell-border);
+}
+
+.cell:hover {
+  background-color: lightblue;
+}

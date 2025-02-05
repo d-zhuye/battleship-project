@@ -1,5 +1,3 @@
-import { Ship } from "./ship";
-
 class GameBoard {
   constructor() {
     this.board = this.createBoard();
@@ -31,17 +29,24 @@ class GameBoard {
   placeShip(ship, row, col) {
     ship.setCoords(row, col);
 
-    ship.rowPos.forEach(a => {
-      ship.colPos.forEach(b => {
-        this.board[a][b].value = 1;
-        this.board[a][b].ship = ship;
-      })
-    })
+    if (ship.orientation == "vertical") {
+      ship.rowPos.forEach((x) => {
+        ship.colPos.forEach((y) => {
+          this.board[x][y].value = 1;
+          this.board[x][y].ship = ship;
+        });
+      });  
+    } else {
+      ship.colPos.forEach((y) => {
+        ship.rowPos.forEach((x) => {
+          this.board[x][y].value = 1;
+          this.board[x][y].ship = ship;
+        });
+      });  
+    }
 
     this.fleet.push(ship);
   }
-
 }
 
 export { GameBoard };
-
