@@ -7,18 +7,18 @@ function initializeGamePlay() {
   const game = newGame();
   game.placeShips();
   game.placeRandom(game.computer);
-  game.renderMaps();
+  // game.renderMaps();
 }
 
 function newGame() {
   // Create players
-  const player = new Player("player");
-  const computer = new Player("computer");
+  const player = new Player("Player");
+  const computer = new Player("Computer");
 
   // Reset Document Body
   document.body.innerHTML = " ";
   const gamePlay = document.createElement("div");
-  gamePlay.id = "placement-screen";
+  gamePlay.id = "game-play";
   document.body.appendChild(gamePlay);
 
   const ships = [
@@ -37,7 +37,7 @@ function newGame() {
     commandBoard.id = "command-board";
     commandBoard.innerHTML = `<div> Next Ship: </div>
       <div id=next-ship-indicator></div>`;
-      gamePlay.append(commandBoard);
+    gamePlay.append(commandBoard);
 
     const nextShip = document.getElementById("next-ship-indicator");
     nextShip.textContent = ships[shipIndex].name;
@@ -47,52 +47,57 @@ function newGame() {
     placementMap.classList.add("map");
     gamePlay.appendChild(placementMap);
 
-    player.gameBoard.board.forEach((row) => {
-      row.forEach((col) => {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        cell.textContent = col.value;
-        placementMap.appendChild(cell);
+    (function generatePlacementMap() {
+      player.gameBoard.board.forEach((row) => {
+        row.forEach((col) => {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.textContent = col.value;
+          placementMap.appendChild(cell);
 
-        cell.addEventListener("click", () => {
-          if (shipIndex < ships.length) {
-            const rowIndex = player.gameBoard.board.indexOf(row);
-            const colIndex = row.indexOf(col);
-
-            const newShip = new Ship(
-              ships[shipIndex].name,
-              ships[shipIndex].length
-            );
-
-            const validity = isValidPlacement(
-              newShip,
-              player,
-              rowIndex,
-              colIndex
-            );
-
-            if (validity) {
-              player.gameBoard.placeShip(newShip, rowIndex, colIndex);
-              shipIndex++;
+          cell.addEventListener("click", () => {
+            if (shipIndex < ships.length) {
+              const rowIndex = player.gameBoard.board.indexOf(row);
+              const colIndex = row.indexOf(col);
+      
+              const newShip = new Ship(
+                ships[shipIndex].name,
+                ships[shipIndex].length
+              );
+      
+              const validity = isValidPlacement(
+                newShip,
+                player,
+                rowIndex,
+                colIndex
+              );
+      
+              if (validity) {
+                player.gameBoard.placeShip(newShip, rowIndex, colIndex);
+                shipIndex++;
+                placementMap.innerHTML = "";
+                generatePlacementMap();
+              }
+              if (ships[shipIndex])
+                nextShip.textContent = ships[shipIndex].name;
+              if (shipIndex == ships.length) startBattle();
             }
-            if (ships[shipIndex]) nextShip.textContent = ships[shipIndex].name;
-            if (shipIndex == ships.length) renderMaps();
-          }
+          });
         });
       });
-    });
+    })();
   };
 
   const placeRandom = (user) => {
     // Iterate over all ship objects stored in ships
-    for (let i = 0; i < ships.length; i++) {
+    for (let i = 0; i < 1; i++) {
       const newShip = new Ship(ships[i].name, ships[i].length);
       let isPlaced = false;
 
       const constraint = 9 - newShip.length + 1;
+      newShip.orientation = Math.random() < 0.5 ? "vertical" : "horizontal";
 
       while (!isPlaced) {
-        newShip.orientation = Math.random() < 0.5 ? "vertical" : "horizontal";
         let rowCoord, colCoord;
         if (newShip.orientation == "vertical") {
           rowCoord = Math.round(Math.random() * constraint);
@@ -102,7 +107,13 @@ function newGame() {
           rowCoord = Math.round(Math.random() * 9);
         }
 
-        let validity = isValidPlacement(newShip, user, rowCoord, colCoord, true);
+        let validity = isValidPlacement(
+          newShip,
+          user,
+          rowCoord,
+          colCoord,
+          true
+        );
 
         if (validity) {
           user.gameBoard.placeShip(newShip, rowCoord, colCoord);
@@ -121,12 +132,14 @@ function newGame() {
 
         if (isRandom) {
           if (user.gameBoard.board[rowCoord + xy][colCoord + 1]) {
-            const marginRight = user.gameBoard.board[rowCoord + xy][colCoord + 1];
+            const marginRight =
+              user.gameBoard.board[rowCoord + xy][colCoord + 1];
             cells.push(marginRight);
           }
 
           if (user.gameBoard.board[rowCoord + xy][colCoord - 1]) {
-            const marginLeft = user.gameBoard.board[rowCoord + xy][colCoord - 1];
+            const marginLeft =
+              user.gameBoard.board[rowCoord + xy][colCoord - 1];
             cells.push(marginLeft);
           }
         }
@@ -141,7 +154,8 @@ function newGame() {
           }
 
           if (user.gameBoard.board[rowCoord - 1]) {
-            const marginBottom = user.gameBoard.board[rowCoord - 1][colCoord + xy];
+            const marginBottom =
+              user.gameBoard.board[rowCoord - 1][colCoord + xy];
             cells.push(marginBottom);
           }
         }
@@ -152,42 +166,75 @@ function newGame() {
     return validity;
   };
 
-  const renderMaps = () => {
+  const startBattle = () => {
     gamePlay.innerHTML = "";
+
+    let turn = "Player";
+    const turnIndicator = document.createElement("div");
+    turnIndicator.textContent = turn;
+    gamePlay.appendChild(turnIndicator);
+
+    const activeMaps = document.createElement("div");
+    activeMaps.id = "active-maps";
+    gamePlay.appendChild(activeMaps);
+
     [player, computer].forEach((user) => {
       const map = document.createElement("div");
       map.classList.add("map");
-      gamePlay.appendChild(map);
+      activeMaps.appendChild(map);
 
       user.gameBoard.board.forEach((row) => {
         row.forEach((col) => {
           const cell = document.createElement("div");
           cell.classList.add("cell");
           if (col.ship) cell.textContent = col.ship.shipId;
-
           map.appendChild(cell);
+
+          cell.addEventListener("click", () => {
+            if (turn != user.name) {
+              const rowIndex = user.gameBoard.board.indexOf(row);
+              const colIndex = row.indexOf(col);
+              const hitStatus = user.gameBoard.receiveAttack(rowIndex, colIndex);
+              console.log(`Targeted Cell at (${rowIndex}, ${colIndex}). Status ${hitStatus}.`);
+              if (hitStatus === "hit") cell.style.background = "orange";
+              if (hitStatus === "miss") cell.style.background = "gray"; 
+              
+              if (user.gameBoard.isAllSunk()) map.style.background = "red";
+              turn = turn == "Player" ? "Computer" : "Player";
+              turnIndicator.textContent = turn;
+            }
+          })
         });
       });
     });
   };
 
-  return { player, computer, placeShips, placeRandom, renderMaps };
+
+
+  return { player, computer, placeShips, placeRandom, startBattle };
 }
 
 export { initializeGamePlay };
 /*
-  1. Reset document body
-  2. Create ship placement screen
-  3. Display ships in order and allow player to position
-  4. Player will be able to toggle the orientation of ships between vertical and horizontal
-  5. Validity Parameters:
-    (a) ship remains inside map
-    (b) coordinates does not already contain another ship/object
 
-    Example: 
-      If coordinates are valid, then create corresponding ship object &&
-      push ship into respective gameBoard fleet array. 
-
-      If coordinates are invalid, then prompt users to select another location.
+Stages of Game: Initialization --> ActiveGame
+Game-Play
+  1. After successfully placing player and computer ship, start by clearing innerHTML
+      of gamePlay container
+  2. Render player player and computer maps 
+    --> Set display to flex 
+    --> Player map on the right, computer map on the left
+  3. Roll a coinFlip (doubloon as a sprite) to determine who would go first 
+      --> "May luck favor us all."
+  4. Prompt user to attack 
+  5. User targets a cell
+    a) if cell is empty 
+          -> change cell hit status to miss
+          -> change cell background color to gray
+    b) if cell contains ship
+          -> change cell hit status to hit 
+          -> change cell background color to orange
+          -> if ship hit count == ship.length, then change cell background color to red
+  6. Prompt other user to attack, repeat steps 5-6 until all ships of a user has sunk
 
 */
