@@ -46,6 +46,10 @@
   border-bottom: var(--cell-border);
 }
 
-.cell:hover {
-  background-color: lightblue;
+.hover-placement {
+  background-color: green;
+}
+
+.invalid-hover-placement {
+  background-color: red;
 }

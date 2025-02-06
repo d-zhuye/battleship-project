@@ -48,41 +48,82 @@ function newGame() {
     gamePlay.appendChild(placementMap);
 
     (function generatePlacementMap() {
+      let newShip;
+      if (ships[shipIndex]) {
+        newShip = new Ship(ships[shipIndex].name, ships[shipIndex].length);
+        nextShip.textContent = newShip.shipId;
+      }
+
       player.gameBoard.board.forEach((row) => {
         row.forEach((col) => {
           const cell = document.createElement("div");
           cell.classList.add("cell");
           cell.textContent = col.value;
+          if (col.value && col.ship) cell.style.background = "green";
+
           placementMap.appendChild(cell);
 
-          cell.addEventListener("click", () => {
+          cell.addEventListener("click", attemptPlacement);
+
+          let cellArray = [];
+          let validity;
+          cell.addEventListener("mouseover", () => {
+            cell.id = "mouseover-cell";
+            const allCells = Array.from(document.querySelectorAll(".cell"));
+            const cellIndex = allCells.findIndex(
+              (c) => c.id === "mouseover-cell"
+            );
+            const rowIndex = player.gameBoard.board.indexOf(row);
+            const colIndex = row.indexOf(col);
+            validity = isValidPlacement(newShip, player, rowIndex, colIndex);
+
+            let barrier;
+            if (cellIndex % 10 > 5) barrier = Math.round(cellIndex / 10) * 10;
+            if (newShip.orientation === "horizontal") {
+              for (let l = 0; l < newShip.length; l++) {
+                const nextIndex = cellIndex + l;
+                if (!barrier || nextIndex < barrier)
+                cellArray.push(allCells[nextIndex]);
+              }
+            }
+
+            cellArray.forEach((c) => {
+              if (validity) c.classList.toggle("hover-placement");
+              if (!validity) c.classList.toggle("invalid-hover-placement");
+            });
+          });
+
+          cell.addEventListener("mouseleave", () => {
+            cell.id = "";
+            cellArray.forEach((c) => {
+              c.classList.remove("hover-placement");
+              c.classList.remove("invalid-hover-placement");
+            });
+            cellArray = [];
+          });
+
+          function attemptPlacement() {
             if (shipIndex < ships.length) {
               const rowIndex = player.gameBoard.board.indexOf(row);
               const colIndex = row.indexOf(col);
-      
-              const newShip = new Ship(
-                ships[shipIndex].name,
-                ships[shipIndex].length
-              );
-      
+
               const validity = isValidPlacement(
                 newShip,
                 player,
                 rowIndex,
                 colIndex
               );
-      
+
               if (validity) {
                 player.gameBoard.placeShip(newShip, rowIndex, colIndex);
                 shipIndex++;
                 placementMap.innerHTML = "";
                 generatePlacementMap();
               }
-              if (ships[shipIndex])
-                nextShip.textContent = ships[shipIndex].name;
+
               if (shipIndex == ships.length) startBattle();
             }
-          });
+          }
         });
       });
     })();
@@ -194,22 +235,25 @@ function newGame() {
             if (turn != user.name) {
               const rowIndex = user.gameBoard.board.indexOf(row);
               const colIndex = row.indexOf(col);
-              const hitStatus = user.gameBoard.receiveAttack(rowIndex, colIndex);
-              console.log(`Targeted Cell at (${rowIndex}, ${colIndex}). Status ${hitStatus}.`);
+
+              const hitStatus = user.gameBoard.receiveAttack(
+                rowIndex,
+                colIndex
+              );
+              console.log(
+                `Targeted Cell at (${rowIndex}, ${colIndex}). Status ${hitStatus}.`
+              );
               if (hitStatus === "hit") cell.style.background = "orange";
-              if (hitStatus === "miss") cell.style.background = "gray"; 
-              
-              if (user.gameBoard.isAllSunk()) map.style.background = "red";
+              if (hitStatus === "miss") cell.style.background = "gray";
               turn = turn == "Player" ? "Computer" : "Player";
               turnIndicator.textContent = turn;
+              if (user.gameBoard.isAllSunk()) map.style.background = "red";
             }
-          })
+          });
         });
       });
     });
   };
-
-
 
   return { player, computer, placeShips, placeRandom, startBattle };
 }
