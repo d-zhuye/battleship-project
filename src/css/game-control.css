@@ -4,8 +4,8 @@
 
 #game-play {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 
@@ -28,7 +28,23 @@
 
 #command-board {
   display: flex;
+  flex-direction: column;
   gap: 15px;
+}
+
+#next-ship {
+  display: flex;
+}
+
+.length-display {
+  width: 40px;
+  height: 40px;
+  background-color: rgb(10, 29, 84);
+  border: 1px solid white;
+}
+
+.placed-ship {
+  background-color: rgb(10, 29, 84);
 }
 
 .map {
