@@ -7,13 +7,18 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  margin-bottom: 30px;
+}
+
+#game-play > .map {
+  width: clamp(200px, 50vh, 90vw);
+  height: clamp(200px, 50vh, 90vw);
+  grid-template: repeat(10, minmax(40px, 1fr)) / repeat(10, minmax(40px, 1fr));
 }
 
 #active-maps {
   margin: 20px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
 }
 
@@ -27,7 +32,6 @@
 }
 
 .map {
-  width: 80%;
   display: grid;
   grid-template: repeat(10, 40px) / repeat(10, 40px);
   text-align: center;
@@ -44,6 +48,10 @@
 
 .cell:nth-last-child(-n + 10) {
   border-bottom: var(--cell-border);
+}
+
+.cell:hover:not(.hover-placement, .invalid-hover-placement) {
+  background-color: cyan;
 }
 
 .hover-placement {
