@@ -58,9 +58,7 @@ function newGame() {
         row.forEach((col) => {
           const cell = document.createElement("div");
           cell.classList.add("cell");
-          cell.textContent = col.value;
           if (col.value && col.ship) cell.style.background = "green";
-
           placementMap.appendChild(cell);
 
           cell.addEventListener("click", attemptPlacement);
@@ -130,8 +128,7 @@ function newGame() {
   };
 
   const placeRandom = (user) => {
-    // Iterate over all ship objects stored in ships
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < ships.length; i++) {
       const newShip = new Ship(ships[i].name, ships[i].length);
       let isPlaced = false;
 
@@ -219,7 +216,7 @@ function newGame() {
     activeMaps.id = "active-maps";
     gamePlay.appendChild(activeMaps);
 
-    [player, computer].forEach((user) => {
+    [computer, player].forEach((user) => {
       const map = document.createElement("div");
       map.classList.add("map");
       activeMaps.appendChild(map);
@@ -228,7 +225,10 @@ function newGame() {
         row.forEach((col) => {
           const cell = document.createElement("div");
           cell.classList.add("cell");
-          if (col.ship) cell.textContent = col.ship.shipId;
+          if (col.ship) {
+            cell.textContent = col.ship.shipId;
+            if (user.name == "Player") cell.style.background = "rgba(0, 255, 175, 0.4)";
+          }
           map.appendChild(cell);
 
           cell.addEventListener("click", () => {
@@ -240,9 +240,7 @@ function newGame() {
                 rowIndex,
                 colIndex
               );
-              console.log(
-                `Targeted Cell at (${rowIndex}, ${colIndex}). Status ${hitStatus}.`
-              );
+
               if (hitStatus === "hit") cell.style.background = "orange";
               if (hitStatus === "miss") cell.style.background = "gray";
               turn = turn == "Player" ? "Computer" : "Player";
