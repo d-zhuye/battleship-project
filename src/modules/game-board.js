@@ -21,9 +21,15 @@ class GameBoard {
     if (this.board[row][col].ship) {
       this.board[row][col].hit = "hit";
       this.board[row][col].ship.hit();
+      return "hit"
     } else {
       this.board[row][col].hit = "miss";
+      return "miss";
     }
+  }
+
+  isAllSunk() {
+    return this.fleet.every(ship => ship.sunken == true);
   }
 
   placeShip(ship, row, col) {
