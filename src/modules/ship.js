@@ -1,8 +1,8 @@
 class Ship {
-  constructor(shipId, length) {
+  constructor(shipId, length, orientation = "horizontal") {
     this.shipId = shipId;
     this.length = length;
-    this.orientation = "horizontal";
+    this.orientation = orientation;
     this.rowPos;
     this.colPos;
     this.hitCount = 0;
