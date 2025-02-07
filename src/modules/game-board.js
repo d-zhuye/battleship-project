@@ -17,6 +17,11 @@ class GameBoard {
     return board;
   }
 
+  resetBoard() {
+    this.board = this.createBoard();
+    this.fleet = [];
+  }
+
   receiveAttack(row, col) {
     if (this.board[row][col].ship) {
       this.board[row][col].hit = "hit";
