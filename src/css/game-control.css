@@ -2,6 +2,10 @@
   --cell-border: 1px solid black;
 }
 
+.hidden {
+  display: none;
+}
+
 #game-play {
   display: flex;
   flex-wrap: wrap;
@@ -10,8 +14,6 @@
 }
 
 #game-play > .map {
-  width: clamp(200px, 50vh, 90vw);
-  height: clamp(200px, 50vh, 90vw);
   grid-template: repeat(10, minmax(40px, 1fr)) / repeat(10, minmax(40px, 1fr));
 }
 
@@ -27,6 +29,8 @@
 }
 
 #command-board {
+  border: 1px solid red;
+  width: clamp(250px, 10%, 400px);
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -41,6 +45,35 @@
   height: 40px;
   background-color: rgb(10, 29, 84);
   border: 1px solid white;
+}
+
+#orientation-btn {
+  width: 60%;
+}
+
+#mid-btns{
+  display: flex;
+  justify-content: space-between;
+}
+
+#reset-btn {
+  width: 30%;
+  background-color: red;
+}
+
+#lower-cb {
+  border: 1px solid blue;
+  margin-top: 30px;
+  text-align: center;
+}
+
+#lower-cb > button {
+  width: 30%;
+  margin: 10px;
+}
+
+#lower-cb > button:hover {
+  background-color: yellow;
 }
 
 .placed-ship {
@@ -68,6 +101,10 @@
 
 .cell:hover:not(.hover-placement, .invalid-hover-placement) {
   background-color: cyan;
+}
+
+.cell:hover {
+  cursor: pointer;
 }
 
 .hover-placement {

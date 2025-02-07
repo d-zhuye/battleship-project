@@ -43,7 +43,7 @@ function newGame() {
     const nextShip = commandBoard.nextShip;
     const orientationBtn = commandBoard.orientationBtn;
     const resetBtn = commandBoard.resetBtn;
-    
+
     orientationBtn.addEventListener("click", () => {
       if (currOrientation == "horizontal") {
         newShip.orientation = currOrientation = "vertical";
@@ -55,10 +55,19 @@ function newGame() {
     });
 
     resetBtn.addEventListener("click", () => {
-      player.gameBoard.resetBoard();
-      shipIndex = 0;
-      placementMap.innerHTML = "";
-      generatePlacementMap();
+      commandBoard.lowerCommandBoard.classList.remove("hidden");
+
+      commandBoard.confirmResetBtn.addEventListener("click", () => {
+        commandBoard.lowerCommandBoard.classList.add("hidden");
+        player.gameBoard.resetBoard();
+        shipIndex = 0;
+        placementMap.innerHTML = "";
+        generatePlacementMap();
+      });
+
+      commandBoard.cancelResetBtn.addEventListener("click", () => {
+        commandBoard.lowerCommandBoard.classList.add("hidden");
+      });
     });
 
     generatePlacementMap();
@@ -68,7 +77,7 @@ function newGame() {
         ships[shipIndex].length,
         currOrientation
       );
-  
+
       if (ships[shipIndex]) {
         //Orientation 2: ship created with specified orientation
         nextShip.innerHTML = "";
@@ -313,22 +322,40 @@ function newGame() {
 function createCommandBoard(parentContainer) {
   const commandBoard = document.createElement("div");
   commandBoard.id = "command-board";
-  commandBoard.innerHTML = `<div id="left-cb">
+  commandBoard.innerHTML = `<div id="upper-cb">
         <div class="cb-text">Next Ship</div>
         <div id="next-ship"></div>
       </div>
-      <div id="right-cb">
+      <div id="mid-cb">
         <div class="cb-text">Orientation</div>
-        <button id="orientation-btn">Horizontal</button>
-                <button id="reset-btn">Reset</button>
+        <div id="mid-btns"><button id="orientation-btn">Horizontal</button>
+                <button id="reset-btn">Reset</button></div>
+        
+      </div>
+      <div id="lower-cb" class="hidden">
+        Resetting Ship Placement...
+        <button id="cancel-reset-btn">Cancel</button>
+        <button id="confirm-reset-btn">Confirm</button> 
+
       </div>`;
   parentContainer.append(commandBoard);
 
   const nextShip = document.getElementById("next-ship");
   const orientationBtn = document.getElementById("orientation-btn");
   const resetBtn = document.getElementById("reset-btn");
+  const lowerCommandBoard = document.getElementById("lower-cb");
+  const cancelResetBtn = document.getElementById("cancel-reset-btn");
+  const confirmResetBtn = document.getElementById("confirm-reset-btn");
 
-  return { commandBoard, nextShip, orientationBtn, resetBtn };
+  return {
+    commandBoard,
+    nextShip,
+    orientationBtn,
+    resetBtn,
+    lowerCommandBoard,
+    cancelResetBtn,
+    confirmResetBtn,
+  };
 }
 
 function endGame(user) {
@@ -339,9 +366,9 @@ function endGame(user) {
   gamePlay.appendChild(result);
 
   if (user === "Player") {
-    result.textContent = "Congratulations!"
+    result.textContent = "Congratulations!";
   } else {
-    result.textContent = "Defeat"
+    result.textContent = "Defeat";
   }
 }
 
