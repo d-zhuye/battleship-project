@@ -21,10 +21,6 @@ function newGame() {
   gamePlay.id = "game-play";
   document.body.appendChild(gamePlay);
 
-  const commandBoard = createCommandBoard(gamePlay);
-  const nextShip = commandBoard.nextShip;
-  const orientationBtn = commandBoard.orientationBtn;
-
   const ships = [
     { name: "Carrier", length: 5 },
     { name: "Battleship", length: 4 },
@@ -34,15 +30,20 @@ function newGame() {
   ];
 
   const placeShips = () => {
+    let shipIndex = 0;
+    let currOrientation = "horizontal";
+    let newShip;
+
     // Placement Map
     const placementMap = document.createElement("div");
     placementMap.classList.add("map");
     gamePlay.appendChild(placementMap);
 
-    let shipIndex = 0;
-    let currOrientation = "horizontal";
-    let newShip;
-
+    const commandBoard = createCommandBoard(gamePlay);
+    const nextShip = commandBoard.nextShip;
+    const orientationBtn = commandBoard.orientationBtn;
+    const resetBtn = commandBoard.resetBtn;
+    
     orientationBtn.addEventListener("click", () => {
       if (currOrientation == "horizontal") {
         newShip.orientation = currOrientation = "vertical";
@@ -53,7 +54,15 @@ function newGame() {
       }
     });
 
-    (function generatePlacementMap() {
+    resetBtn.addEventListener("click", () => {
+      player.gameBoard.resetBoard();
+      shipIndex = 0;
+      placementMap.innerHTML = "";
+      generatePlacementMap();
+    });
+
+    generatePlacementMap();
+    function generatePlacementMap() {
       newShip = new Ship(
         ships[shipIndex].name,
         ships[shipIndex].length,
@@ -61,7 +70,6 @@ function newGame() {
       );
   
       if (ships[shipIndex]) {
-        console.log(currOrientation);
         //Orientation 2: ship created with specified orientation
         nextShip.innerHTML = "";
 
@@ -97,7 +105,6 @@ function newGame() {
           cell.addEventListener("click", attemptPlacement);
 
           function showPrePlacement() {
-            console.log("working");
             cell.id = "mouseover-cell";
             const allCells = Array.from(document.querySelectorAll(".cell"));
             const cellIndex = allCells.findIndex(
@@ -107,9 +114,7 @@ function newGame() {
             const colIndex = row.indexOf(col);
             validity = isValidPlacement(newShip, player, rowIndex, colIndex);
 
-            console.log(cellIndex);
             let barrier;
-            console.log(newShip.orientation);
             if (newShip.orientation === "horizontal") {
               if (cellIndex % 10 > 5) barrier = Math.round(cellIndex / 10) * 10;
               for (let l = 0; l < newShip.length; l++) {
@@ -163,11 +168,11 @@ function newGame() {
           }
         });
       });
-    })();
+    }
   };
 
   const placeRandom = (user) => {
-    for (let i = 0; i < ships.length; i++) {
+    for (let i = 0; i < 1; i++) {
       const newShip = new Ship(ships[i].name, ships[i].length);
       let isPlaced = false;
 
@@ -288,7 +293,14 @@ function newGame() {
               if (hitStatus === "miss") cell.style.background = "gray";
               turn = turn == "Player" ? "Computer" : "Player";
               turnIndicator.textContent = turn;
-              if (user.gameBoard.isAllSunk()) map.style.background = "red";
+              if (user.gameBoard.isAllSunk()) {
+                map.style.background = "red";
+                if (user.name === "Player") {
+                  endGame("Computer");
+                } else {
+                  endGame("Player");
+                }
+              }
             }
           });
         });
@@ -305,20 +317,32 @@ function createCommandBoard(parentContainer) {
         <div class="cb-text">Next Ship</div>
         <div id="next-ship"></div>
       </div>
-      <div id="mid-cb">
+      <div id="right-cb">
         <div class="cb-text">Orientation</div>
         <button id="orientation-btn">Horizontal</button>
-      </div>
-      <div id="right-cb">
-        <button id="random-btn">Randomize</button>
-        <button id="reset-btn">Reset</button>
+                <button id="reset-btn">Reset</button>
       </div>`;
   parentContainer.append(commandBoard);
 
   const nextShip = document.getElementById("next-ship");
   const orientationBtn = document.getElementById("orientation-btn");
+  const resetBtn = document.getElementById("reset-btn");
 
-  return { commandBoard, nextShip, orientationBtn };
+  return { commandBoard, nextShip, orientationBtn, resetBtn };
+}
+
+function endGame(user) {
+  const gamePlay = document.getElementById("game-play");
+  gamePlay.innerHTML = "";
+
+  const result = document.createElement("div");
+  gamePlay.appendChild(result);
+
+  if (user === "Player") {
+    result.textContent = "Congratulations!"
+  } else {
+    result.textContent = "Defeat"
+  }
 }
 
 export { initializeGamePlay };
