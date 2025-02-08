@@ -3,13 +3,16 @@ import { gamePlay } from "./game-control";
 import { startBattle } from "./active-battle";
 import { player, computer } from "./game-control";
 
+// Note to self! Players are able to place ships below lower boundary.
+// Reconfigure isValidPlacement to prevent behavior.
+
 export function newGame() {
     const ships = [
       { name: "Carrier", length: 5 },
-      // { name: "Battleship", length: 4 },
-      // { name: "Cruiser", length: 3 },
-      // { name: "Submarine", length: 3 },
-      // { name: "Destroyer", length: 2 },
+      { name: "Battleship", length: 4 },
+      { name: "Cruiser", length: 3 },
+      { name: "Submarine", length: 3 },
+      { name: "Destroyer", length: 2 },
     ];
   
     const placeShips = () => {
@@ -165,7 +168,7 @@ export function newGame() {
     };
   
     const placeRandom = (user) => {
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < ships.length; i++) {
         const newShip = new Ship(ships[i].name, ships[i].length);
         let isPlaced = false;
   
